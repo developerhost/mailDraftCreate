@@ -1,0 +1,40 @@
+function createDraft() {
+   var ui = SpreadsheetApp.getUi()
+  var al = ui.alert("確認：①タイトルの有無　②今月の目標％が合っているか　③差し込みの反映が適切か", ui.ButtonSet.YES_NO)
+  switch(al){
+    case ui.Button.YES:  
+  
+  const sheet = SpreadsheetApp.getActiveSpreadsheet();
+  const sousintabu= sheet.getSheetByName('送信タブ');
+  const lastRow = sousintabu.getRange(sousintabu.getMaxRows(), 1).getNextDataCell(SpreadsheetApp.Direction.UP).getRow();
+  
+  for(let i = 3; i <= lastRow; i++){
+    
+    // 送信タブ
+    const fastName = sousintabu.getRange(i, 9).getValue(); //名
+    const lastName = sousintabu.getRange(i, 8).getValue(); //姓
+    const recipient = sousintabu.getRange(i, 5).getValue(); //生徒
+    const cc_mail = sousintabu.getRange(i, 6).getValue(); //保護者
+    const shintyoku = sousintabu.getRange(i, 10).getValue(); //現在の進捗
+    const options = {
+      bcc: sousintabu.getRange("N3:N10").getValue(), // BCC
+      cc: sousintabu.getRange("O3:O10").getValue() //CC
+    };
+    const subject = sousintabu.getRange(3, 11).getValue(); //タイトル
+    const mokuhyou = sousintabu.getRange(3, 12).getValue(); //今月の目標
+    const tannin_name = sousintabu.getRange(3, 13).getValue(); //担任名
+    
+    //本文タブ
+    const text = sheet.getSheetByName('本文').getRange(1, 1).getValue(); //本文
+    const body = text
+    .replace(/{名}/g,fastName)
+    .replace(/{姓}/g,lastName)
+    .replace(/{今月の目標}/g,mokuhyou)
+    .replace(/{担任名}/g, tannin_name)
+    .replace(/{現在の進捗率}/g, shintyoku)
+    if(!sousintabu.getRange(i,7).getValue()){
+    GmailApp.createDraft(recipient, subject, body, options)
+    }
+  }
+  }
+}
